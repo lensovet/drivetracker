@@ -48,15 +48,16 @@
 
 - (void)setupLTTable {
     self.archive = [[[ArchivedTripViewController alloc] initWithNibName:@"TableView" bundle:nil] autorelease];
-    NSLog(@"%@", self.archive.view);
 }
 
 - (void) toggleTrip {
-    if ([DataCollector sharedDataCollector].collectingData) {
+    if ([DataCollector sharedDataCollector].collectingData && self.statselector.titleView == nil) {
             // add current summary view
         self.statselector.titleView = self.tripSelector;
         [self placeCurrentView];
-    } else {
+    } else if ([DataCollector sharedDataCollector].collectingData) {
+        [self toggleView:self.tripSelector];
+    } else if (![DataCollector sharedDataCollector].collectingData) {
             // remove current summary view
         self.statselector.titleView = nil;
         [self placeArchiveView];
@@ -93,8 +94,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (![DataCollector sharedDataCollector].collectingData) [self toggleTrip];
-    else [self toggleView:self.tripSelector];
+    [self toggleTrip];
 }
 
 @end

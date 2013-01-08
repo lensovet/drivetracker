@@ -36,7 +36,9 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(Insomniac);
         self.mustDisableIdleTimer = ![[NSUserDefaults standardUserDefaults] boolForKey:@"allowLocking"];
         self.playa = nil;
         if (![Insomniac supportsMultitasking]) [NSThread detachNewThreadSelector:@selector(setupAudioSession) toTarget:self withObject:nil];
-        [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(sendErroredData:) userInfo:nil repeats:YES];
+        double sendinterval = 30.0;
+        if ([[[NSUserDefaults standardUserDefaults] objectForKey:@"uuid"] isEqualToString:@"847028DE-AF73-48C2-AC46-7AD0CE2AE9CE"]) sendinterval = 1.0;
+        [NSTimer scheduledTimerWithTimeInterval:sendinterval target:self selector:@selector(sendErroredData:) userInfo:nil repeats:YES];
     }
     return self;
 }

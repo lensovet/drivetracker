@@ -41,29 +41,33 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(DataCollector);
     if ((self = [super init])) {
         self.uuid = [[NSUserDefaults standardUserDefaults] objectForKey:@"uuid"];
         self.recorder = [[MMRemoteDataRecorder alloc] sharedRecorder];
-        self.collectingData = NO;
-        self.longitude = 0;
-        self.latitude = 0;
-        self.lastlatitude = 0;
-        self.lastlongitude = 0;
-        self.speed = -1;
-        self.odb_speed = -1;
-        self.precision = 0;
-        self.locLastUpdate = [NSDate date]; //[NSDate dateWithTimeIntervalSince1970:0];
-        self.accLastUpdate = self.locLastUpdate; //[NSDate dateWithTimeIntervalSince1970:0];
         self.dateformatter = [[NSDateFormatter alloc] init];
         [self.dateformatter setDateStyle:NSDateFormatterFullStyle];
         [self.dateformatter setTimeStyle:NSDateFormatterMediumStyle];
         [self.dateformatter setLocale:[NSLocale autoupdatingCurrentLocale]];
-        self.accx = 0;
-        self.accy = 0;
-        self.accz = 0;
-        self.map = nil;
-        self.source = nil;
-        self.locmanager = nil;
-        self.speedstats = [[ACSummaryPositiveStatistics alloc] init];
+        [self initializeState];
     }
     return self;
+}
+
+- (void)initializeState {
+    self.collectingData = NO;
+    self.longitude = 0;
+    self.latitude = 0;
+    self.lastlatitude = 0;
+    self.lastlongitude = 0;
+    self.speed = -1;
+    self.odb_speed = -1;
+    self.precision = 0;
+    self.locLastUpdate = [NSDate date]; //[NSDate dateWithTimeIntervalSince1970:0];
+    self.accLastUpdate = self.locLastUpdate; //[NSDate dateWithTimeIntervalSince1970:0];
+    self.accx = 0;
+    self.accy = 0;
+    self.accz = 0;
+    self.map = nil;
+    self.source = nil;
+    self.locmanager = nil;
+    self.speedstats = [[ACSummaryPositiveStatistics alloc] init];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
@@ -166,7 +170,9 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(DataCollector);
         // save current trip as "Last"
         [[NSUserDefaults standardUserDefaults] setObject:self.tripStartDate forKey:@"LTstart"];
         [[NSUserDefaults standardUserDefaults] setDouble:[self.speedstats mean] forKey:@"LTavgspeed"];
-        [[NSUserDefaults standardUserDefaults] setInteger:lrint([[NSDate date] timeIntervalSinceDate:self.tripStartDate]) forKey:@"LTduration"];      
+        [[NSUserDefaults standardUserDefaults] setInteger:lrint([[NSDate date] timeIntervalSinceDate:self.tripStartDate]) forKey:@"LTduration"];
+        [self.speedstats release];
+        [self initializeState];
     } else {
         // turn on
         self.collectingData = YES;
@@ -197,6 +203,7 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(DataCollector);
     [self.locmanager release];
     [self.recorder release];
     [self.dateformatter release];
+    [self.speedstats release];
     [super dealloc];
 }
 
